@@ -54,19 +54,24 @@ public:
 
     //格式化json
     void format(std::string &out) const;
-    
-private:
-    //解析,成功返回true
-    bool Parse(const std::string &in);
-    bool Parse(const char *in){
-        if(in){
-            return Parse(std::string(in));
-        }
-        return false;
+    std::string format() const {
+        std::string out;
+        format(out);
+        return out;
     }
     
-    std::shared_ptr<JsonValue> v_ptr; 
+    //解析,如果解析失败，返回Json(),并设置err
+    static Json Parse(const std::string &in,std::string &err);
+    static Json Parse(const char *in,std::string &err){
+        if(in){
+            return Parse(std::string(in),err);
+        }
+        err = "null input";
+        return nullptr;
+    }
 
+private: 
+    std::shared_ptr<JsonValue> v_ptr; 
 
 };//end class Json
 
@@ -77,6 +82,11 @@ class JsonValue{
 protected:
     //virtual double get_num() const;
     virtual Json::JsonType myType() const = 0;
+    virtual bool get_bool() const;
+    virtual double get_number() const;
+    virtual const std::string & get_string() const;
+    virtual const Json::Array & get_array() const;
+    virtual const Json::Object & get_object() const;
     virtual ~JsonValue(){}
 };
 

@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+#忽略json文件
+json
