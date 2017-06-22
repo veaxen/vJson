@@ -8,6 +8,76 @@ using std::map;
 
 namespace vjson{
 
+/*****************************格式化*************************************/
+static void format(std::nullptr_t,string &out){
+    out += "null";
+}
+static void format(bool value,string &out){
+    if(value)   out += "true";
+    else        out += "false";
+}
+
+static void format(double value,string &out){
+    char buf[32];
+    //double的精度在小数后16-17位，这里我用16位
+    snprintf(buf,sizeof(buf),"%.16g",value);
+    out += buf;
+}
+
+static void format(const string &value,string &out){
+    out += '"';
+    for(size_t i=0;i<value.length();i++){
+        const char ch = value[i];
+        if(ch == '\\'){
+            out += "\\\\";
+        } else if(ch == '"'){
+            out += "\\\"";
+        } else if(ch == '\b'){
+            out += "\\b";
+        } else if(ch == '\f'){
+            out += "\\f";
+        } else if(ch == '\n'){
+            out += "\\n";
+        } else if(ch == '\r'){
+            out += "\\r";
+        } else if(ch == '\t'){
+            out += "\\t";
+        } else if(static_cast<unsigned char>(ch) <= 0x1f){
+            char buf[8];
+            snprintf(buf,sizeof(buf),"\\u%04x",ch);
+            out += buf;
+        } else{
+            out += ch;
+        }
+    }
+    out += '"';
+}
+
+static void format(const Json::Array &value,string &out){
+    out += '[';
+    bool flag = false;
+    for(const auto &val:value){
+        if(flag) out += ',';
+        val.format(out);
+        flag = true;
+    }
+    out += ']';
+}
+
+static void format(const Json::Object &value,string &out){
+    out += '{';
+    bool flag = false;
+    for(const auto &obj:value){
+        if(flag) out += ',';
+        format(obj.first,out);
+        out += ':';
+        obj.second.format(out);
+        flag += true;
+    }
+    out += '}';
+}
+/************************************************************************/
+
 //用于对JsonValue进行扩展，以适应json的数据类型
 template<Json::JsonType tag,class T>
 class Value:public JsonValue{
@@ -15,8 +85,9 @@ protected:
     const T m_value;
     explicit Value(const T &value) : m_value(value){}
     
-    //对纯虚函数myType()进行定义
-    Json::JsonType myType() const override{return tag;}
+    //对纯虚函数进行定义
+    Json::JsonType myType() const override {return tag;}
+    void format(string &out) const override {vjson::format(m_value,out);}
 };
 
 
@@ -91,14 +162,10 @@ const string &          Json::get_string()          const {return v_ptr->get_str
 const Json::Array &     Json::get_array()           const {return v_ptr->get_array();}
 const Json::Object &    Json::get_object()          const {return v_ptr->get_object();}
 
+void Json::format(string &out) const   {v_ptr->format(out);}
 
-/*待编写*/
-void Json::format(std::string &out) const
-{
-    
-}
-Json Json::Parse(const std::string &in,std::string &err)
-{
+Json Json::Parse(const string &in,string &err)
+{   
     return nullptr;
 }
 /********************************************class JsonValue********************************************/
@@ -107,8 +174,6 @@ double                  JsonValue::get_number()             const {return 0.0;}
 const string &          JsonValue::get_string()             const {return sg_init.empty_str;}
 const Json::Array &     JsonValue::get_array()              const {return sg_init.empty_array;}
 const Json::Object &    JsonValue::get_object()             const {return sg_init.empty_obj;}
-
-
 
 };//end namespace vjson
 

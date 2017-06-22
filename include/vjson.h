@@ -82,6 +82,7 @@ class JsonValue{
 protected:
     //virtual double get_num() const;
     virtual Json::JsonType myType() const = 0;
+    virtual void format(std::string &out) const = 0;
     virtual bool get_bool() const;
     virtual double get_number() const;
     virtual const std::string & get_string() const;
