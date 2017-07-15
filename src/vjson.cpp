@@ -384,6 +384,12 @@ struct Statics{
 };
 static const Statics sg_init;
 
+static const Json & Static_null()
+{
+    static const Json json_null;
+    return json_null;
+}
+
 /***********************************************class Json**********************************************/
 
 /*Constructors*/
@@ -419,6 +425,22 @@ Json Json::Parse(const string &in,string &err)
     JsonParser parser{in,err,false,0};
     return parser.parse_json();
 }
+
+
+//当为Array或者Object时，返回想用的Json,其他返回Json()
+const Json & Json::operator[](size_t i)
+{
+    if(i>=get_array().size() || !is_array())
+        return Static_null();
+    return get_array()[i];
+}
+const Json & Json::operator[](const std::string &key)
+{
+    if(!is_object()) return Static_null();
+    auto iter = get_object().find(key);
+    return (iter != get_object().end())?iter->second:Static_null();
+}
+
 /********************************************class JsonValue********************************************/
 bool                    JsonValue::get_bool()               const {return false;}
 double                  JsonValue::get_number()             const {return 0.0;}

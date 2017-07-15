@@ -10,7 +10,7 @@ int main()
         {"key2",123},
         {"key3",false},
         {"key4",vjson::Json::Array {4,false,"abc"}},
-        {"key5",vjson::Json::Object {{"key1",true}}}
+        {"key5",vjson::Json::Object {{"key1",nullptr}}}
     };
     
     //根据Json变量产生json格式的字符串
@@ -34,8 +34,8 @@ int main()
     //解析成Json变量
     vjson::Json js_val3 = vjson::Json::Parse(js_str2,err);
     //从Json变量中读取出值
-    std::cout<<js_val3.get_object().find("key1")->second.get_string();
-    std::cout<<js_val3.get_object().find("key2")->second.get_string();
+    std::cout<<js_val3["key1"].get_string();
+    std::cout<<js_val3["key2"].get_string();
     std::cout<<std::endl;
 
     return 0;

@@ -70,6 +70,10 @@ public:
         return nullptr;
     }
 
+    //当为Array或者Object时，返回想用的Json,其他返回Json()
+    const Json & operator[](size_t i);
+    const Json & operator[](const std::string &key);
+
 private: 
     std::shared_ptr<JsonValue> v_ptr; 
 
