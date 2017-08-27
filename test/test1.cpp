@@ -1,4 +1,4 @@
-#include "../include/vjson.h"
+#include "../vjson/vjson.h"
 #include <string>
 #include <iostream>
 
